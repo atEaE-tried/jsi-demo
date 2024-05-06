@@ -25,6 +25,11 @@ py cui.py
 py gui.py
 ```
 
+![gui_demo](https://github.com/atEaE-tried/jsi-demo/assets/30979044/bd90cbd7-201d-45be-abc2-ed11c27dba2c)
+
 ## 参考資料
 
 - <https://jsi-assessment.info/jsi-mini.pdf>
+
+CUIだけだと、全然わくわくしないから、さっきのやつにGUIも追加した
+標準packageだけで作ったから、pythonだけで動くはず
