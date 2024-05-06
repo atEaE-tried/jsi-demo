@@ -21,7 +21,7 @@ def showItem(item: jsi_mini.Item):
 
 # 評価ポイントの詳細を表示する
 def showAssessmentSelect():
-	print("評価ポイントを選択してください")
+	print("")
 	print("0: まったくない")
 	print("1: ごくたまにある")
 	print("2: 時々ある")
@@ -61,7 +61,7 @@ def getUserInput() -> jsi_mini.AssessmentPoint:
 	# 0-6の入力を受け付ける　それ以外は再入力させる
 	while True:
 		try:
-			userInput = int(input())
+			userInput = int(input("-> "))
 		except ValueError:
 			userInput = -1
 		
