@@ -68,7 +68,7 @@ def sumSensorySearch(list: list[Item]) -> int:
 def sumSensoryHypersensitivity(list: list[Item]) -> int:
 	sum = 0
 	for item in list:
-		if item.type == SensoryType.A or item.type == SensoryType.AB:
+		if item.type == SensoryType.B or item.type == SensoryType.AB:
 			# A系列の評価ポイントを合計する
             # ただし、「まったくない」、「質問項目にあてはまらない」、「わからない」は合算する必要がないので無視
 			if item.assessment != AssessmentPoint.NONE and item.assessment != AssessmentPoint.NOTAPPLY and item.assessment != AssessmentPoint.UNKNOWN:
