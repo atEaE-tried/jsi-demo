@@ -30,6 +30,3 @@ py gui.py
 ## 参考資料
 
 - <https://jsi-assessment.info/jsi-mini.pdf>
-
-CUIだけだと、全然わくわくしないから、さっきのやつにGUIも追加した
-標準packageだけで作ったから、pythonだけで動くはず
