@@ -89,29 +89,33 @@ def sumOther(list: list[Item]) -> int:
 # 検査項目リストA系列: 感覚探求を判定する
 def decisionSensorySearch(sum: int):
 	if sum <= 4:
-		return "GREEN"
+		return CONST_DECISION_GREEN
 	if sum > 4 and sum <= 8:
-		return "YELLOW"
+		return CONST_DECISION_YELLOW
 	if sum > 8:
-		return "RED"
+		return CONST_DECISION_RED
 
 # 検査項目リストB系列: 感覚過敏を判定する
 def decisionSensoryHypersensitivity(sum: int):
 	if sum <= 3:
-		return "GREEN"
+		return CONST_DECISION_GREEN
 	if sum > 3 and sum <= 6:
-		return "YELLOW"
+		return CONST_DECISION_YELLOW
 	if sum > 6:
-		return "RED"
+		return CONST_DECISION_RED
 
 # 検査項目リスト全体: 全体の評価ポイントを判定する
 def decisionTotal(sum: int):
 	if sum <= 10:
-		return "GREEN"
+		return CONST_DECISION_GREEN
 	if sum > 10 and sum <= 17:
-		return "YELLOW"
+		return CONST_DECISION_YELLOW
 	if sum > 17:
-		return "RED"
+		return CONST_DECISION_RED
+
+CONST_DECISION_GREEN = "GREEN"
+CONST_DECISION_YELLOW = "YELLOW"
+CONST_DECISION_RED = "RED"
 
 # 検索項目リストを返却する
 def itemList():

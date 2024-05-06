@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import font
 from model import jsi_mini
 
 # GUI用にItemクラスを継承したGUI専用のItemクラス
@@ -18,6 +19,31 @@ class GUIItem(jsi_mini.Item):
 	def selected(self, selected: tk.IntVar):
 		self._selected = selected
 
+	# radio button選択中の状態をJSI-miniのAssessmentPointに変換する
+	def convert_selected_for_assessment_point(self):
+		userInput = self.selected.get()
+
+		if userInput == 0:
+			self.assessment = jsi_mini.AssessmentPoint.NONE
+		elif userInput == 1:
+			self.assessment = jsi_mini.AssessmentPoint.VERYRARELY
+		elif userInput == 2:
+			self.assessment = jsi_mini.AssessmentPoint.SOMETIMES
+		elif userInput == 3:
+			self.assessment = jsi_mini.AssessmentPoint.FREQUENTLY
+		elif userInput == 4:
+			self.assessment = jsi_mini.AssessmentPoint.ALWAYS
+		elif userInput == 5:
+			self.assessment = jsi_mini.AssessmentPoint.NOTAPPLY
+		elif userInput == 6:
+			self.assessment = jsi_mini.AssessmentPoint.UNKNOWN
+	
+	# JSI-miniのItemに変換する
+	def convert_to_jsi_mini_item(self) -> jsi_mini.Item:
+		item = jsi_mini.Item(self.number, self.title, self.type)
+		item.assessment = self.assessment
+		return item
+
 # Tkを継承したAppクラス
 class JSIApp(tk.Tk):
 
@@ -30,6 +56,7 @@ class JSIApp(tk.Tk):
 		# window setting
 		self.title("JSI-mini Demo")
 		self.geometry("800x600")
+		self.resizable(False, False)
 
 		# header setting
 		self.header = self.create_header_frame()
@@ -55,6 +82,7 @@ class JSIApp(tk.Tk):
 	def create_header_frame(self) -> tk.Frame:
 		header = tk.Frame(self)
 		tk.Label(header, text="JSI-mini Demo", font=("Helvetica", 20)).pack()
+		header.pack()
 		return header
 
 	# 動的に検査項目のframeを生成する
@@ -72,8 +100,8 @@ class JSIApp(tk.Tk):
 			("2: 時々ある", 2),
 			("3: 頻繁にある", 3),
 			("4: いつもある", 4),
-			("5: 質問項目にあてはまらない。（例えば、項目内容が、お子さんの状態に合わない等）", 5),
-			("6: わからない。（例えば、項目内容を、これまで経験したことがない等）", 6),
+			("x: 質問項目にあてはまらない。（例えば、項目内容が、お子さんの状態に合わない等）", 5),
+			("?: わからない。（例えば、項目内容を、これまで経験したことがない等）", 6),
 		]:
 			tk.Radiobutton(frame, text=text, variable=item.selected, value=value, font=("Helvetica", 10)).pack(anchor="w")
 		return frame
@@ -138,6 +166,58 @@ class JSIApp(tk.Tk):
 		# 余計なframeを非表示にする
 		self.disable_main_frame()
 		self.disable_footer()
+
+		# gui itemをJSI-mini itemに変換する
+		items = []
+		for i in self.items:
+			i.convert_selected_for_assessment_point()
+			items.append(i.convert_to_jsi_mini_item())
+
+		# result frameを生成する
+		frame = tk.Frame(self, borderwidth=2, relief="ridge")
+		tk.Label(frame, text="結　果", font=font.Font(family="Helvetica", size=16, weight="bold")).pack(padx=5, pady=5)
+
+		sumSensorSearch = jsi_mini.sumSensorySearch(items)
+		atext = "A系列 : 感覚探求 {}".format(sumSensorSearch)
+		adicisionLabel = jsi_mini.decisionSensorySearch(sumSensorSearch)
+		tk.Label(frame, text=atext, font=("Helvetica", 12)).pack(anchor="w", padx=5, pady=5)
+		tk.Label(frame, text=adicisionLabel, fg=self.get_decision_color(adicisionLabel), font=("Helvetica", 12)).pack(anchor="e", padx=15, pady=5)
+
+		sumSensorHypersensitivity = jsi_mini.sumSensoryHypersensitivity(items)
+		btext = "B系列 : 感覚過敏 {}".format(sumSensorHypersensitivity)
+		bdicisionLabel = jsi_mini.decisionSensoryHypersensitivity(sumSensorHypersensitivity)
+		tk.Label(frame, text=btext, font=("Helvetica", 12)).pack(anchor="w", padx=5, pady=5)
+		tk.Label(frame, text=bdicisionLabel, fg=self.get_decision_color(bdicisionLabel), font=("Helvetica", 12)).pack(anchor="e", padx=15, pady=5)
+
+
+		total = sumSensorSearch + sumSensorHypersensitivity + jsi_mini.sumOther(items)
+		ttext = "総合評価（全項目合計点） {}".format(total)
+		tdicisionLabel = jsi_mini.decisionTotal(total)
+		tk.Label(frame, text=ttext, font=("Helvetica", 12)).pack(anchor="w", padx=5, pady=5)
+		tk.Label(frame, text=tdicisionLabel, fg=self.get_decision_color(tdicisionLabel), font=("Helvetica", 12)).pack(anchor="e", padx=15, pady=5)
+
+		tk.Label(frame, text="概　要", font=font.Font(family="Helvetica", size=16, weight="bold")).pack(padx=5, pady=5)
+		tk.Label(frame, text="Green : ").pack(anchor="w", padx=5, pady=5)
+		tk.Label(frame, text="典型的な状態（約７５％の子どもたちに見られる状態です）").pack(anchor="w", padx=15, pady=5)
+
+		tk.Label(frame, text="Yellow : ").pack(anchor="w", padx=5, pady=5)
+		tk.Label(frame, text="若干、感覚刺激の受け取り方に偏りの傾向が推測される状態（約２０％の子どもたちに見られる状態です）").pack(anchor="w", padx=15, pady=5)
+
+		tk.Label(frame, text="Red : ").pack(anchor="w", padx=5, pady=5)
+		tk.Label(frame, text="感覚刺激の受け取り方に偏りの傾向が推測される状態。").pack(anchor="w", padx=15, pady=5)
+		tk.Label(frame, text="すなわち、ある刺激に対して過敏であったり、鈍感であるような状態（約５％の子どもたちに見られる状態です）").pack(anchor="w", padx=15, pady=2)
+
+		frame.pack()
+
+	def get_decision_color(self, decision: str):
+		if decision == jsi_mini.CONST_DECISION_GREEN:
+			return "green"
+		elif decision == jsi_mini.CONST_DECISION_YELLOW:
+			return "yellow"
+		elif decision == jsi_mini.CONST_DECISION_RED:
+			return "red"
+		else:
+			return "black"
 	
 	# jsi_mini.ItemのリストをGUIItemのリストに変換する
 	def convert_to_gui_item(self, items: list[jsi_mini.Item]) -> list[GUIItem]:
